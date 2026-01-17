@@ -24,18 +24,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          
+          node-version: '22'
+          cache: 'npm'
+
       - name: Install dependencies
         run: |
-          # Проверяем наличие package-lock.json
-          if [ -f package-lock.json ]; then
-            echo "Using npm ci (package-lock.json found)"
-            npm ci
-          else
-            echo "Using npm install (no package-lock.json)"
-            npm install
+          # Создаем package-lock.json если его нет
+          if [ ! -f package-lock.json ]; then
+            npm init -y
+            npm install vite axios --save
           fi
+          npm ci
 
       - name: Build project
         run: npm run build
