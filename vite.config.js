@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   root: '.',
-  base: '/mesto-ad-main/',
+  base: '/mesto-production/',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -17,3 +17,4 @@ export default defineConfig({
   },
 
 });
+
