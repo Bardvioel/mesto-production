@@ -5,87 +5,44 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+    
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          
-      - name: Initialize package-lock.json if missing
-        run: |
-          if [ ! -f package.json ]; then
-            echo "ERROR: package.json not found!"
-            exit 1
-          fi
-          
-          if [ ! -f package-lock.json ]; then
-            echo "Creating package-lock.json from package.json..."
-            echo "{}" > package-lock.json
-            npm install --package-lock-only
-            
-            if [ -f package-lock.json ]; then
-              echo "✅ package-lock.json successfully created"
-              ls -la package-lock.json
-            else
-              echo "❌ Failed to create package-lock.json"
-              exit 1
-            fi
-          else
-            echo "✅ package-lock.json already exists"
-          fi
 
-      - name: Install dependencies
+      - name: Установка зависимостей
         run: |
-          echo "Installing dependencies..."
-          npm install --no-audit --no-fund
-          
-          echo "Installed packages:"
-          npm list --depth=0
+          # Простая установка (создаст package-lock.json если его нет)
+          npm install
 
-      - name: Build project
+      - name: Сборка проекта
         run: |
-          echo "Building project..."
+          # Собираем проект
           npm run build
-          echo "Build completed!"
           
-          if [ -d "dist" ]; then
-            echo "✅ dist folder created successfully"
-            ls -la dist/
-          else
-            echo "❌ dist folder not found!"
-            exit 1
-          fi
+          # Проверяем результат
+          echo "📁 Содержимое после сборки:"
+          ls -la
+          echo ""
+          echo "📦 Содержимое папки dist:"
+          ls -la dist/
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Деплой на GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: "./dist"
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true   # Для чистого деплоя
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
