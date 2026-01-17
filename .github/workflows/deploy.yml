@@ -29,12 +29,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Создаем package-lock.json если его нет
-          if [ ! -f package-lock.json ]; then
-            npm init -y
-            npm install vite axios --save
+          # Проверяем наличие package-lock.json
+          if [ -f package-lock.json ]; then
+            echo "Using npm ci (package-lock.json found)"
+            npm ci
+          else
+            echo "Using npm install (no package-lock.json)"
+            npm install
           fi
-          npm ci
 
       - name: Build project
         run: npm run build
