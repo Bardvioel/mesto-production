@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -24,19 +24,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
           
-      - name: Create package-lock.json if missing
+      - name: Install dependencies
         run: |
-          if [ ! -f package-lock.json ]; then
-            echo "package-lock.json not found, creating from package.json..."
-            npm init --yes
+          # Проверяем наличие package-lock.json
+          if [ -f package-lock.json ]; then
+            echo "Using npm ci (package-lock.json found)"
+            npm ci
+          else
+            echo "Using npm install (no package-lock.json)"
             npm install
           fi
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Build project
         run: npm run build
@@ -47,7 +46,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "./dist"
 
   deploy:
     environment:
