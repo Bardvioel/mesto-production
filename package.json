@@ -1,0 +1,20 @@
+{
+  "name": "mesto-ad-main",
+  "version": "1.0.0",
+  "description": "Стартовый набор для выполнения проектной работы Место",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "vite": "^7.2.7"
+  },
+  "dependencies": {
+    "axios": "^1.13.2"
+  }
+}
