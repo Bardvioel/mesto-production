@@ -3,26 +3,89 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           
-      - name: Install and Build
+      - name: Initialize package-lock.json if missing
         run: |
-          npm install
-          npm run build
+          if [ ! -f package.json ]; then
+            echo "ERROR: package.json not found!"
+            exit 1
+          fi
           
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+          if [ ! -f package-lock.json ]; then
+            echo "Creating package-lock.json from package.json..."
+            echo "{}" > package-lock.json
+            npm install --package-lock-only
+            
+            if [ -f package-lock.json ]; then
+              echo "✅ package-lock.json successfully created"
+              ls -la package-lock.json
+            else
+              echo "❌ Failed to create package-lock.json"
+              exit 1
+            fi
+          else
+            echo "✅ package-lock.json already exists"
+          fi
+
+      - name: Install dependencies
+        run: |
+          echo "Installing dependencies..."
+          npm install --no-audit --no-fund
+          
+          echo "Installed packages:"
+          npm list --depth=0
+
+      - name: Build project
+        run: |
+          echo "Building project..."
+          npm run build
+          echo "Build completed!"
+          
+          if [ -d "dist" ]; then
+            echo "✅ dist folder created successfully"
+            ls -la dist/
+          else
+            echo "❌ dist folder not found!"
+            exit 1
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: "./dist"
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
