@@ -19,30 +19,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+            node-version: '>=22.12'
+            cache: 'npm'
 
-      - name: Установка зависимостей
-        run: |
-          # Простая установка (создаст package-lock.json если его нет)
-          npm install
+      - name: Install dependencies
+        run: npm install
 
-      - name: Сборка проекта
-        run: |
-          # Собираем проект
-          npm run build
-          
-          # Проверяем результат
-          echo "📁 Содержимое после сборки:"
-          ls -la
-          echo ""
-          echo "📦 Содержимое папки dist:"
-          ls -la dist/
+      - name: Build project
+        run: npm run build
 
       - name: Деплой на GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          force_orphan: true   # Для чистого деплоя
+          force_orphan: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'deploy: update build' 
