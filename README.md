@@ -16,7 +16,7 @@
 
 ## 🚀 Демо
 
-🌐 **Живая версия проекта доступна по ссылке:** [https://ваш-логин.github.io/mesto-production](https://bardvioel.github.io/mesto-production/)
+🌐 **Живая версия проекта доступна по ссылке:** [Mesto](https://bardvioel.github.io/mesto-production/)
 
 ## 🛠 Технологии
 
